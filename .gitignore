@@ -1,0 +1,31 @@
+# PlatformIO build files
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# VSCode settings
+.vscode/
+
+# MacOS files
+.DS_Store
+
+# Build artifacts
+*.elf
+*.bin
+*.hex
+*.map
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+
+# CodeQL artifacts
+_codeql_detected_source_root
+
+# Dependencies are managed by PlatformIO
+# Keep lib/ for custom project libraries
