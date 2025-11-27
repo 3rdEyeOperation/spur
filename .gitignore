@@ -24,5 +24,8 @@
 *.tmp
 *.bak
 
+# CodeQL artifacts
+_codeql_detected_source_root
+
 # Dependencies are managed by PlatformIO
 # Keep lib/ for custom project libraries
