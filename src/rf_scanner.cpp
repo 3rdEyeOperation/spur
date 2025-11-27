@@ -4,6 +4,7 @@
  */
 
 #include "rf_scanner.h"
+#include <cmath>
 
 // Create module instances for RadioLib
 #if defined(LORA_CS) && defined(LORA_IRQ) && defined(LORA_RST) && defined(LORA_BUSY)
@@ -129,8 +130,10 @@ float RFScanner::measureRSSI(float freq, uint8_t band) {
         int state = radio900->setFrequency(freq);
         if (state == RADIOLIB_ERR_NONE) {
             // Put radio in receive mode briefly to measure RSSI
+            // Note: Minimal delay needed for RSSI settling; consider async 
+            // scanning for higher performance in future versions
             radio900->startReceive();
-            delay(5);  // Brief listen
+            delay(2);  // Minimal settling time
             rssi = radio900->getRSSI();
             radio900->standby();
         }
@@ -139,7 +142,7 @@ float RFScanner::measureRSSI(float freq, uint8_t band) {
         int state = radio2400->setFrequency(freq);
         if (state == RADIOLIB_ERR_NONE) {
             radio2400->startReceive();
-            delay(5);
+            delay(2);  // Minimal settling time
             rssi = radio2400->getRSSI();
             radio2400->standby();
         }
@@ -163,11 +166,12 @@ ModulationType RFScanner::analyzeModulation(float freq, uint8_t band) {
             // Check bandwidth characteristics
             if (sx1262Available) {
                 // Sample multiple times to check for frequency hopping
+                // Delay between samples to detect signal variance
                 float rssi1 = measureRSSI(freq, 0);
-                delay(10);
+                delay(5);  // Brief interval for FHSS detection
                 float rssi2 = measureRSSI(freq, 0);
                 
-                if (abs(rssi1 - rssi2) > 20) {
+                if (fabs(rssi1 - rssi2) > 20) {
                     detectedMod = MOD_FHSS;  // Signal varies - likely FHSS
                 } else if (rssi1 > -60) {
                     detectedMod = MOD_LORA;  // Strong steady signal
@@ -186,10 +190,10 @@ ModulationType RFScanner::analyzeModulation(float freq, uint8_t band) {
         if (freq >= 2400.0 && freq <= 2483.0) {
             // Check signal characteristics
             float rssi1 = measureRSSI(freq, 1);
-            delay(10);
+            delay(5);  // Brief interval for FHSS detection
             float rssi2 = measureRSSI(freq, 1);
             
-            if (abs(rssi1 - rssi2) > 15) {
+            if (fabs(rssi1 - rssi2) > 15) {
                 detectedMod = MOD_FHSS;  // Frequency hopping detected
             } else if (rssi1 > -50) {
                 // Strong signal - could be DSSS or OFDM
@@ -207,7 +211,7 @@ void RFScanner::addSignal(float freq, float rssi, ModulationType mod, uint8_t ba
     // Check if signal already exists
     for (int i = 0; i < MAX_DETECTED_SIGNALS; i++) {
         if (signals[i].active && 
-            abs(signals[i].frequency - freq) < 1.0 &&
+            fabs(signals[i].frequency - freq) < 1.0 &&
             signals[i].band == band) {
             // Update existing signal
             signals[i].rssi = rssi;

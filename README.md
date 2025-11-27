@@ -86,7 +86,6 @@ Press the button to navigate menus. In scanning mode, press to return to main me
 - [RadioLib](https://github.com/jgromes/RadioLib) - Multi-platform radio library
 - [Adafruit SSD1306](https://github.com/adafruit/Adafruit_SSD1306) - OLED display driver
 - [Adafruit GFX](https://github.com/adafruit/Adafruit-GFX-Library) - Graphics library
-- [ArduinoJson](https://github.com/bblanchon/ArduinoJson) - JSON support
 
 ## License
 
